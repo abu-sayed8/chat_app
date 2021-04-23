@@ -1,4 +1,5 @@
 import 'package:chat_app/helper/authenticate.dart';
+import 'package:chat_app/helper/helperfunctions.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/views/chatroomsscreen.dart';
@@ -16,6 +17,8 @@ class _SignUpState extends State<SignUp> {
   bool isLoading=false;
   AuthMethods authMethods=new AuthMethods();
   DatabaseMethods databaseMethods=new DatabaseMethods();
+  //HelperFunctions helperFunctions=new HelperFunctions();
+
   final formKey=GlobalKey<FormState>();
   TextEditingController userNameTextEditingController=new TextEditingController();
   TextEditingController emailTextEditingController=new TextEditingController();
@@ -25,8 +28,11 @@ class _SignUpState extends State<SignUp> {
       Map<String, String> userInfoMap ={
         "name" : userNameTextEditingController.text,
         "email" : emailTextEditingController.text,
+        "password" : passwordTextEditingController.text,
       };
-     setState(() {
+      HelperFunctions.saveUserNameSharedPreference(userNameTextEditingController.text);
+      HelperFunctions.saveUserEmailSharedPreference(emailTextEditingController.text);
+      setState(() {
        isLoading=true;
      });
      authMethods.signUpWithEmailAndPassword(emailTextEditingController.text,
@@ -35,9 +41,10 @@ class _SignUpState extends State<SignUp> {
 
 
        databaseMethods.uploadUserInfo(userInfoMap);
-           Navigator.pushReplacement(context, MaterialPageRoute(
-               builder: (context)=>ChatRoom()
-           ));
+           HelperFunctions.saveUserLoggedInSharedPreference(true);
+       Navigator.pushReplacement(context, MaterialPageRoute(
+           builder: (context)=>ChatRoom()
+       ));
      });
 
     }
@@ -136,7 +143,7 @@ class _SignUpState extends State<SignUp> {
                       TextFormField(
                           obscureText: true,
                         validator: (val){
-                          return val.length>8 ? null:"Please provide your password";
+                          return val.length>4 ? null:"Please provide your password";
                         },
                           controller: passwordTextEditingController,
                           style: simpleTextFieldStyle(),
